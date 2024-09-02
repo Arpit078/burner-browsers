@@ -1,0 +1,17 @@
+FROM alpine:latest
+
+LABEL maintainer="Jan Kuri <jkuri88@gmail.com>"
+
+ENV DISPLAY :99
+ENV RESOLUTION 1920x1080x24
+
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && apk add --no-cache ca-certificates curl openssl sudo xvfb x11vnc bash firefox novnc websockify \
+    && adduser -h /home/alpine -s /bin/bash -S -D alpine && echo -e "alpine\nalpine" | passwd alpine \
+    && echo 'alpine ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+RUN apk add font-terminus font-inconsolata font-dejavu font-noto font-noto-cjk font-awesome font-noto-extra
+
+USER alpine
+WORKDIR /home/alpine
+
