@@ -1,12 +1,11 @@
 use std::collections::HashMap;
 use std::process::Command;
 use std::time::Duration;
-use axum::extract::{State,Json};
-use axum::response::Redirect;
+use axum::extract::{State, Json};
+use axum::response::IntoResponse;
 use serde::{Serialize, Deserialize};
 use tokio::sync::Mutex;
 use std::sync::Arc;
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Server {
@@ -16,20 +15,21 @@ pub struct Server {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RequestBody {
-    // Define the structure of your request body here
-    // Example:
     password: String,
-    screen_width: String,
-    screen_height: String
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServerMap(pub HashMap<String, Server>);
 
+#[derive(Serialize, Deserialize)]
+struct ResponseBody {
+    url: String,
+}
+
 pub async fn start_container(
     State(server_map): State<Arc<Mutex<ServerMap>>>,
     Json(body): Json<RequestBody>,
-) -> Redirect {
+) -> impl IntoResponse {
     let server_map_arc = server_map.clone();
     let mut server_map = server_map.lock().await;
     for (server_name, server) in server_map.0.iter_mut() {
@@ -59,7 +59,7 @@ pub async fn start_container(
                     .arg("burner-browser")
                     .arg("--build-arg")
                     .arg(format!("PASSWORD={}", body.password))
-                    .arg(".") // Ensure the build context is specified
+                    .arg(".")
                     .output();
 
                 match build_output {
@@ -123,7 +123,7 @@ pub async fn start_container(
 
             tokio::spawn(async move {
                 let start_time = tokio::time::Instant::now();
-                while Duration::from_secs(60) > start_time.elapsed() {
+                while Duration::from_secs(360) > start_time.elapsed() {
                     tokio::time::sleep(Duration::from_secs(1)).await;
                 }
                 println!("Executing stop command for {:?}", server_name_clone2);
@@ -173,9 +173,12 @@ pub async fn start_container(
                     }
                 }
             });
+
             tokio::time::sleep(Duration::from_secs(5)).await;
-            return Redirect::to(format!("http://127.0.0.1/novnc/{}/vnc.html?resize=remote&path=novnc/{}/websockify", server_name,server_name).as_str());
+
+            let url = format!("http://127.0.0.1/novnc/{}/vnc.html?resize=remote&path=novnc/{}/websockify", server_name, server_name);
+            return Json(ResponseBody { url }).into_response();
         }
     }
-    Redirect::to("/") // Handle case where all servers are busy
+    Json(ResponseBody { url: "/".to_string() }).into_response() // Handle case where all servers are busy
 }

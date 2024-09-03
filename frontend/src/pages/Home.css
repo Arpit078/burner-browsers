@@ -1,0 +1,78 @@
+.wrapper {
+    animation: scroll 10s linear infinite;
+    background: url("../../public/bg.jpg") repeat-y center center;
+    background-size: cover; /* Ensures the image covers the viewport */
+    color: #eee;
+    height: 100vh;
+    min-width: 360px;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+    overflow: hidden; /* Prevents page scroll */
+}
+
+@keyframes scroll {
+    0% {
+        background-position: center 0;
+    }
+    100% {
+        background-position: center 100%;
+    }
+}
+
+/* Fallback for Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .wrapper {
+        animation: scroll 80s linear infinite;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        background-position: center top;
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 5rem;
+    }
+
+    .sub_text {
+        font-size: 1.25rem;
+        max-width: 90%;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .wrapper {
+        background-position: center center;
+    }
+
+    .title {
+        font-size: 7rem;
+    }
+
+    .sub_text {
+        font-size: 1.5rem;
+        max-width: 85%;
+    }
+}
+
+@media (min-width: 1025px) {
+    .wrapper {
+        background-position: center center;
+    }
+
+    .title {
+        font-size: 10rem;
+    }
+
+    .sub_text {
+        font-size: 2rem;
+        max-width: 75%;
+    }
+}

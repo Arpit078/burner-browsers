@@ -1,10 +1,8 @@
 import './App.css';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import SignIn from './components/SignIn';
-import GoogleLoginButton from './components/GoogleLoginButton';
+import Home from './pages/Home';
 function App() {
   return (
-    <GoogleLoginButton/>
+    <Home/>
   );
 }
 
